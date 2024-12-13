@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Profil{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <!-- Profil Başlığı -->
+                <div class="card-header bg-dark text-light text-center">
+                    <h3>Kullanıcı Profil</h3>
+                </div>
+                
+                <!-- Profil İçeriği -->
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <!-- Profil Fotoğrafı -->
+                        <div class="col-md-4 text-center">
+                            <img src="https://via.placeholder.com/150" alt="Profil Fotoğrafı" class="rounded-circle img-fluid">
+                        </div>
+                        <!-- Kullanıcı Bilgileri -->
+                        <div class="col-md-8">
+                            <h4>{{ user.name }}</h4>
+                            <p><strong>Email:</strong> {{ user.email }}</p>
+                            <p><strong>Katılım Tarihi:</strong> {{ user.created_at }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Kullanıcı Hedef ve Adımlar -->
+                    <div>
+                        <h5>Hedeflerim:</h5>
+                        <ul class="list-group">
+                            {% for goal in user.goals %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ goal.name }}
+                                    <span class="badge bg-success">{{ goal.steps|length }} Adım</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Profil Düzenleme ve Çıkış Butonları -->
+                <div class="card-footer bg-dark text-center">
+                    <a href="/edit-profile" class="btn btn-warning">Profili Düzenle</a>
+                    <a href="/logout" class="btn btn-danger">Çıkış Yap</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

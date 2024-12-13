@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container login-container">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header text-center text-light bg-dark">
+                        <h4>Synapsee Giriş</h4>
+                    </div>
+                    <div class="card-body bg-dark text-light">
+                        <form method="POST" action="/login">
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label">E-posta</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+
+                            <!-- Şifre -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Şifre</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                <br>
+                                    <div class="alert-container">
+                                        {% for category, message in messages %}
+                                            <div class="alert alert-{{ category }}">
+                                                {{ message }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+
+                            <!-- Giriş Butonu -->
+                            <button type="submit" class="btn btn-success text-light w-100">Giriş Yap</button>
+                        </form>
+
+
+                        <!-- Hata Mesajı -->
+                        <div class="error-message mt-3 text-danger" id="error-message" style="display:none;">
+                            Geçersiz kullanıcı adı veya şifre.
+                        </div>
+                    </div>
+                    <div class="card-footer bg-dark text-center">
+                        <a class="text-light"href="#" style="text-decoration: none">Şifremi Unuttum?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
