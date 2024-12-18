@@ -6,14 +6,14 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{url_for('user.logout_user')}}">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="/mindmaps">Mindmaps</a></li>
         {% if 'session_key' in session %}
             <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
-            <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{url_for('user.logout_user')}}">Logout</a></li>
         {% else %}
-            <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
-            <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{url_for('user.register_user')}}">Register</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{url_for('user.login_user')}}">Login</a></li>
         {% endif %}
       </ul>
     </div>

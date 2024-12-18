@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Kullanıcılar{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-3">
+      <!-- Sidebar'ı buraya dahil ediyoruz -->
+      {% include 'admin/admin_sidebar.html' %}
+    </div>
+
+    <div class="col-md-9">
+      <!-- Kullanıcılar Listesi -->
+      <h2>Kullanıcılar</h2>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <br>
+            <div class="alert-container">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Kullanıcı Adı</th>
+            <th>Email</th>
+            <th>Created Time</th>
+            <th>İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+            <tr>
+              <td>{{ user.user_id }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.created_at }}</td>
+              <td>
+                <a href="{{ url_for('admin.user_edit', user_id=user.user_id) }}" class="btn btn-warning btn-sm">Düzenle</a>
+                <a href="{{ url_for('admin.user_delete', user_id=user.user_id) }}" class="btn btn-danger btn-sm">Sil</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

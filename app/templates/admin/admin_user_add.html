@@ -1,17 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %}Kayıt Ol{% endblock %}
+{% block title %}Yeni Kullanıcı Ekle{% endblock %}
 
 {% block content %}
+
 <div class="container login-container">
     <div class="row justify-content-center">
+    <div class="row">
+    <div class="col-md-3">
+      <!-- Sidebar'ı buraya dahil ediyoruz -->
+      {% include 'admin/admin_sidebar.html' %}
+    </div>
         <div class="col-md-4">
+        
             <div class="card">
                 <div class="card-header text-center text-light bg-dark">
-                    <h4>Synapsee Kayıt Ol</h4>
+                    <h4>Synapsee - Yeni Kullanıcı Ekle</h4>
                 </div>
                 <div class="card-body bg-dark text-light">
-                    <form method="POST" action="{{url_for('user.register_user')}}">
+                    <form method="POST" action="{{ url_for('admin.user_add') }}">
                         <!-- Kullanıcı Adı -->
                         <div class="mb-3">
                             <label for="username" class="form-label">Kullanıcı Adı</label>
@@ -31,26 +38,25 @@
                         </div>
 
                         <!-- Kayıt Butonu -->
-                        <button type="submit" class="btn btn-success text-light w-100">Kayıt Ol</button>
+                        <button type="submit" class="btn btn-success text-light w-100">Kullanıcı Ekle</button>
                     </form>
-                    
 
                     <!-- Hata Mesajı -->
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                         <br>
-                            <div class="alert-container">
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ category }}">
-                                        {{ message }}
-                                    </div>
-                                {% endfor %}
-                            </div>
+                        <div class="alert-container">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
                         {% endif %}
                     {% endwith %}
                 </div>
                 <div class="card-footer bg-dark text-center">
-                    <a class="text-light" href="{{ url_for('user.login_user') }}" style="text-decoration: none">Zaten üye misiniz? Giriş yapın</a>
+                    <a class="text-light" href="{{ url_for('admin.admin_dashboard') }}" style="text-decoration: none">Geri</a>
                 </div>
             </div>
         </div>
