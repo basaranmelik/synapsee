@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Admin Dashboard - All User Mind Maps</h1>
+
+    {% if user_mindmaps %}
+        <div class="user-mindmaps">
+            {% for user, mindmaps in user_mindmaps.items() %}
+                <div class="user-mindmap">
+                    <h3>{{ user.username }}</h3>
+                    {% if mindmaps %}
+                        <ul>
+                            {% for mindmap in mindmaps %}
+                                <li>
+                                    <a href="{{ url_for('admin.view_mindmaps', map_id=mindmap.id) }}">
+                                        {{ mindmap.title }} 
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No mind maps available for this user.</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No users found.</p>
+    {% endif %}
+{% endblock %}

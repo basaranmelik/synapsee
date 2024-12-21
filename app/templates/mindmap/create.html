@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Create Mind Map{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Create Your Mind Map</h1>
+    <form id="mindmap-form" class="p-4 shadow rounded bg-light">
+        <div class="mb-4">
+            <label for="map-title" class="form-label fw-bold">MindMap Title</label>
+            <input type="text" class="form-control" id="map-title" placeholder="Enter MindMap title" required>
+        </div>
+        <div class="mb-4">
+            <label for="map-description" class="form-label fw-bold">Description</label>
+            <textarea class="form-control" id="map-description" rows="4" placeholder="Enter description"></textarea>
+        </div>
+        <button type="button" class="btn btn-primary w-100 mb-4" onclick="addGoal()">+ Add Goal</button>
+        <div id="goals-container" class="mb-4"></div>
+        <button type="button" class="btn btn-success w-100" onclick="saveMindMap()">Save MindMap</button>
+    </form>
+</div>
+
+<script>
+    let goals = [];
+
+    function addGoal() {
+        const goalId = goals.length + 1;
+        goals.push({ id: goalId, title: '', steps: [] });
+
+        const goalContainer = document.getElementById('goals-container');
+        const goalCard = document.createElement('div');
+        goalCard.className = 'card mt-3 border-primary';
+        goalCard.id = `goal-card-${goalId}`;
+        goalCard.innerHTML = `
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <span>Goal</span>
+                <button class="btn btn-danger btn-sm" onclick="deleteGoal(${goalId})">Delete Goal</button>
+            </div>
+            <div class="card-body bg-light">
+                <div class="mb-3">
+                    <label class="form-label">Goal Title</label>
+                    <input type="text" class="form-control" placeholder="Enter goal title" onchange="updateGoalTitle(${goalId}, this.value)">
+                </div>
+                <button type="button" class="btn btn-secondary mb-3" onclick="addStep(${goalId})">+ Add Step</button>
+                <ul class="list-group" id="goal-steps-${goalId}"></ul>
+            </div>
+        `;
+        goalContainer.appendChild(goalCard);
+    }
+
+    function addStep(goalId) {
+        const goal = goals.find(g => g.id === goalId);
+        const stepId = goal.steps.length + 1;
+        goal.steps.push({ id: stepId, description: '', is_completed: false });
+
+        const stepList = document.getElementById(`goal-steps-${goalId}`);
+        const stepItem = document.createElement('li');
+        stepItem.className = 'list-group-item d-flex justify-content-between align-items-center bg-light border-secondary';
+        stepItem.id = `step-item-${goalId}-${stepId}`;
+        stepItem.innerHTML = `
+            <input type="text" class="form-control" placeholder="Enter step description" onchange="updateStepDescription(${goalId}, ${stepId}, this.value)">
+            <button class="btn btn-danger btn-sm ms-2" onclick="deleteStep(${goalId}, ${stepId}, this)">Delete</button>
+        `;
+        stepList.appendChild(stepItem);
+    }
+
+    function deleteGoal(goalId) {
+        goals = goals.filter(g => g.id !== goalId);
+        document.getElementById(`goal-card-${goalId}`).remove();
+    }
+
+    function deleteStep(goalId, stepId, button) {
+        const goal = goals.find(g => g.id === goalId);
+        goal.steps = goal.steps.filter(s => s.id !== stepId);
+        button.closest('li').remove();
+    }
+
+    function updateGoalTitle(goalId, title) {
+        const goal = goals.find(g => g.id === goalId);
+        if (goal) goal.title = title;
+    }
+
+    function updateStepDescription(goalId, stepId, description) {
+        const goal = goals.find(g => g.id === goalId);
+        const step = goal.steps.find(s => s.id === stepId);
+        if (step) step.description = description;
+    }
+
+    function saveMindMap() {
+    const title = document.getElementById('map-title').value;
+    const description = document.getElementById('map-description').value;
+
+    if (!title) {
+        alert('Mind Map title is required.');
+        return;
+    }
+
+    const mindMapData = {
+        title: title,
+        description: description,
+        goals: goals.map(g => ({
+            title: g.title,
+            steps: g.steps.map(s => ({ description: s.description }))
+        }))
+    };
+
+    console.log('Saving MindMap:', mindMapData); // Debugging
+    fetch('/mindmap/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(mindMapData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error saving Mind Map');
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('Mind Map saved successfully!');
+        window.location.href = '/mindmap/list'; // Başarılıysa yönlendirme
+    })
+    .catch(error => {
+        alert('Error saving Mind Map.');
+        console.error(error);
+    });
+}
+
+</script>
+
+<style>
+    .card-header {
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .list-group-item {
+        background-color: #f8f9fa;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+</style>
+{% endblock %}

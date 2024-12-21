@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Mindmap Sil</h1>
+    <p class="text-danger">Bu mindmap'i silmek istediğinizden emin misiniz?</p>
+    <form action="{{ url_for('mindmap.delete', mindmap_id=mindmap.map_id) }}" method="POST">
+        <button type="submit" class="btn btn-danger">Evet, Sil</button>
+        <a href="{{ url_for('mindmap.view', mindmap_id=mindmap.map_id) }}" class="btn btn-secondary">Hayır, İptal</a>
+    </form>
+</div>
+{% endblock %}

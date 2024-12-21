@@ -1,6 +1,7 @@
 import hashlib
 from flask import flash, render_template, redirect, request, session, url_for
 from app.models import User
+from app.models.mindmaps import MindMap
 from app.models.session import Session
 from app import db
 from werkzeug.security import generate_password_hash
@@ -127,7 +128,27 @@ def _user_add():
 
     return render_template('admin/admin_user_add.html')
 
+def _view_mindmaps():
+    # Get all users
+    users = User.query.all()
 
+    # Initialize a dictionary to store user mind maps
+    user_mindmaps = {}
+
+    # Loop through each user and get their mind maps
+    for user in users:
+        mindmaps = MindMap.query.filter_by(user_id=user.user_id).all()
+        user_mindmaps[user] = mindmaps
+
+    return render_template('admin/admin_mindmaps.html', user_mindmaps=user_mindmaps)
+
+def _view_mindmap(mindmap_id):
+    mindmap = MindMap.query.get(mindmap_id)
+    if not mindmap:
+        flash('Mind map not found!', 'danger')
+        return redirect(url_for('admin.view_mindmaps'))
+
+    return render_template('admin/admin_view_mindmap.html', mindmap=mindmap)
 
 
 

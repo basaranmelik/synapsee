@@ -1,13 +1,22 @@
 
 # Giriş yapma fonksiyonu
+from functools import wraps
 from flask import render_template, request, redirect, flash, session, url_for
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from app.models.users import User
 from app.models.admin import Admin
 from app.models.session import Session
 from app import db
 import uuid
 from datetime import datetime, timedelta
+
+def login_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('user.login_user'))  # Kullanıcı giriş yapmamışsa login sayfasına yönlendir
+        return f(*args, **kwargs)
+    return wrapper
 
 def _login_user():
     if 'session_key' in session:  # Eğer kullanıcı zaten giriş yaptıysa, yönlendir
@@ -87,20 +96,66 @@ import hashlib
 def _logout_user():
     if 'session_key' in session:
         # Tarayıcıdaki session_key'i al
-        raw_session_key = session['session_key']
+        raw_session_key = session.get('session_key')
 
         # Veritabanından bu session_key ile kaydı ara
         session_entry = Session.query.filter_by(session_key=raw_session_key).first()
         if session_entry:
+            # Veritabanından session kaydını sil
             db.session.delete(session_entry)
             db.session.commit()
 
-        # Tarayıcıdaki session_key'i temizle
-        session.pop('session_key', None)
-        flash('Oturum kapatıldı!', 'info')
-
-        if 'admin_id' in session:
-            session.pop('admin_id', None)
+    # Tüm oturum anahtarlarını temizle
+    session.clear()  # Tüm oturum bilgilerini temizler
+    flash('Oturum kapatıldı!', 'info')
 
     return redirect(url_for("user.login_user"))  # Login sayfasına yönlendir
+
+def _profile():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('Giriş yapmanız gerekiyor!', 'danger')
+        return redirect(url_for('user.login_user'))
+
+    user = User.query.get(user_id)
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        # Güncellemeleri uygula
+        user.username = username
+        user.email = email
+        if password:  # Eğer şifre girildiyse hashleyip güncelle
+            user.password_hash = generate_password_hash(password)
+
+        db.session.commit()
+        flash('Profiliniz başarıyla güncellendi!', 'success')
+        return redirect(url_for('user.profile'))
+
+    return render_template('user/profile.html', user=user)
+
+def _delete():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('Giriş yapmanız gerekiyor!', 'danger')
+        return redirect(url_for('user.login_user'))
+
+    user = User.query.get(user_id)
+    if request.method == 'POST':
+        password = request.form.get('password')
+
+        # Şifreyi doğrula
+        if not check_password_hash(user.password_hash, password):
+            flash('Şifreniz yanlış!', 'danger')
+            return redirect(url_for('user.profile'))
+
+        # Kullanıcıyı sil
+        db.session.delete(user)
+        db.session.commit()
+        
+        flash('Hesabınız başarıyla silindi!', 'success')
+        session.pop('user_id', None)  # Oturumdan kullanıcıyı çıkar
+        return redirect(url_for('user.login_user'))  # Login sayfasına yönlendir
+
 
