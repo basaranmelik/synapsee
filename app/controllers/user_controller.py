@@ -1,12 +1,10 @@
-
 # Giriş yapma fonksiyonu
 from functools import wraps
 from flask import render_template, request, redirect, flash, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models.users import User
-from app.models.admin import Admin
-from app.models.session import Session
+from app.models import User, Admin, Session
 from app import db
+from sqlalchemy.exc import IntegrityError
 import uuid
 from datetime import datetime, timedelta
 
@@ -31,11 +29,12 @@ def _login_user():
 
         # Kullanıcıyı kontrol et
         user = User.query.filter_by(email=email).first()
-        if user and check_password_hash(user.password_hash, password):
+        if user and check_password_hash(user.password, password):
             # Kullanıcı doğrulandı
 
             # Session key oluşturma
             session_key = str(uuid.uuid4())
+            session['username'] = user.username
             expires_at = datetime.utcnow() + timedelta(days=7)  # 7 gün geçerli
 
             # Session kaydını veritabanına ekle
@@ -61,8 +60,6 @@ def _login_user():
 
     return render_template("user/login.html")
 
-
-
 # Kayıt olma fonksiyonu
 def _register_user():
     if 'session_key' in session:  # Eğer kullanıcı zaten giriş yaptıysa, anasayfaya yönlendir
@@ -79,20 +76,37 @@ def _register_user():
             flash('Bu e-posta adresi zaten kullanılıyor!', 'danger')
             return redirect(url_for('user.register_user'))
 
-        # Yeni kullanıcı oluştur ve veritabanına ekle
-        new_user = User(username=username, email=email, password=password)
-        db.session.add(new_user)
-        db.session.commit()
+        # Yeni kullanıcıyı veritabanına eklemeye çalış
+        try:
+            new_user = User(
+                username=username,
+                email=email,
+                password=generate_password_hash(password)
+            )
+            db.session.add(new_user)
+            db.session.commit()
 
-        flash('Başarıyla kayıt oldunuz!', 'success')
-        return redirect(url_for('user.login_user'))
+            flash('Başarıyla kayıt oldunuz!', 'success')
+            return redirect(url_for('user.login_user'))
+        
+        except IntegrityError as e:
+            db.session.rollback()  # Veritabanı hatası durumunda işlemi geri al
+            if "email_check" in str(e):
+                flash("Geçersiz e-posta adresi formatı. Lütfen '@' işareti ve geçerli bir alan adı kullandığınızdan emin olun.", "danger")
+            elif "duplicate key" in str(e):
+                flash("Bu e-posta adresi veya kullanıcı adı zaten kullanılıyor. Lütfen başka bir değer deneyin.", "danger")
+            else:
+                flash("Kayıt işlemi sırasında bir hata oluştu. Lütfen tekrar deneyin.", "danger")
+            return redirect(url_for('user.register_user'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Bilinmeyen bir hata oluştu: {str(e)}", "danger")
+            return redirect(url_for('user.register_user'))
 
     return render_template('user/register.html')
 
-
 # Çıkış yapma fonksiyonu
-import hashlib
-
 def _logout_user():
     if 'session_key' in session:
         # Tarayıcıdaki session_key'i al
@@ -127,7 +141,7 @@ def _profile():
         user.username = username
         user.email = email
         if password:  # Eğer şifre girildiyse hashleyip güncelle
-            user.password_hash = generate_password_hash(password)
+            user.password = generate_password_hash(password)
 
         db.session.commit()
         flash('Profiliniz başarıyla güncellendi!', 'success')
@@ -146,7 +160,7 @@ def _delete():
         password = request.form.get('password')
 
         # Şifreyi doğrula
-        if not check_password_hash(user.password_hash, password):
+        if not check_password_hash(user.password, password):
             flash('Şifreniz yanlış!', 'danger')
             return redirect(url_for('user.profile'))
 
@@ -157,5 +171,3 @@ def _delete():
         flash('Hesabınız başarıyla silindi!', 'success')
         session.pop('user_id', None)  # Oturumdan kullanıcıyı çıkar
         return redirect(url_for('user.login_user'))  # Login sayfasına yönlendir
-
-

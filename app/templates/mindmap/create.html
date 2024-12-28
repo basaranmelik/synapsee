@@ -5,19 +5,38 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="text-center mb-4">Create Your Mind Map</h1>
-    <form id="mindmap-form" class="p-4 shadow rounded bg-light">
-        <div class="mb-4">
-            <label for="map-title" class="form-label fw-bold">MindMap Title</label>
-            <input type="text" class="form-control" id="map-title" placeholder="Enter MindMap title" required>
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            {% include '/mindmap/sidebar.html' %}
         </div>
-        <div class="mb-4">
-            <label for="map-description" class="form-label fw-bold">Description</label>
-            <textarea class="form-control" id="map-description" rows="4" placeholder="Enter description"></textarea>
+
+        <!-- MindMap Creation Form -->
+        <div class="col-md-9">
+            <form id="mindmap-form" class="p-4 shadow rounded bg-light">
+                <div class="mb-4">
+                    <label for="map-title" class="form-label fw-bold">MindMap Title</label>
+                    <input type="text" class="form-control" id="map-title" placeholder="Enter MindMap title" required>
+                </div>
+                <div class="mb-4">
+                    <label for="map-description" class="form-label fw-bold">Description</label>
+                    <textarea class="form-control" id="map-description" rows="4" placeholder="Enter description"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="map-style" class="form-label fw-bold">Select Style</label>
+                    <select class="form-select" id="map-style">
+                        <option value="">Choose a style</option>
+                        {% for style in styles %}
+                        <option value="{{ style.style_id }}">{{ style.color }} - {{ style.shape }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary w-100 mb-4" onclick="addGoal()">+ Add Goal</button>
+                <div id="goals-container" class="mb-4"></div>
+                <button type="button" class="btn btn-success w-100" onclick="saveMindMap()">Save MindMap</button>
+            </form>
         </div>
-        <button type="button" class="btn btn-primary w-100 mb-4" onclick="addGoal()">+ Add Goal</button>
-        <div id="goals-container" class="mb-4"></div>
-        <button type="button" class="btn btn-success w-100" onclick="saveMindMap()">Save MindMap</button>
-    </form>
+    </div>
 </div>
 
 <script>
@@ -87,45 +106,51 @@
     }
 
     function saveMindMap() {
-    const title = document.getElementById('map-title').value;
-    const description = document.getElementById('map-description').value;
+        const title = document.getElementById('map-title').value;
+        const description = document.getElementById('map-description').value;
+        const styleId = document.getElementById('map-style').value;
 
-    if (!title) {
-        alert('Mind Map title is required.');
-        return;
-    }
-
-    const mindMapData = {
-        title: title,
-        description: description,
-        goals: goals.map(g => ({
-            title: g.title,
-            steps: g.steps.map(s => ({ description: s.description }))
-        }))
-    };
-
-    console.log('Saving MindMap:', mindMapData); // Debugging
-    fetch('/mindmap/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(mindMapData)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error saving Mind Map');
+        if (!title) {
+            alert('Mind Map title is required.');
+            return;
         }
-        return response.json();
-    })
-    .then(data => {
-        alert('Mind Map saved successfully!');
-        window.location.href = '/mindmap/list'; // Başarılıysa yönlendirme
-    })
-    .catch(error => {
-        alert('Error saving Mind Map.');
-        console.error(error);
-    });
-}
 
+        if (!styleId) {
+            alert('Please select a style for the Mind Map.');
+            return;
+        }
+
+        const mindMapData = {
+            title: title,
+            description: description,
+            style_id: styleId,
+            goals: goals.map(g => ({
+                title: g.title,
+                steps: g.steps.map(s => ({ description: s.description }))
+            }))
+        };
+
+        console.log('Saving MindMap:', mindMapData); // Debugging
+        fetch('/mindmap/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(mindMapData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error saving Mind Map');
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert('Mind Map saved successfully!');
+            window.location.href = '/mindmap'; // Başarılıysa yönlendirme
+        })
+        .catch(error => {
+            alert('Error saving Mind Map.');
+            console.error(error);
+        });
+    }
 </script>
 
 <style>

@@ -2,30 +2,64 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1>Profiliniz</h1>
+    <h1 class="mb-4">Profiliniz</h1>
     <hr>
-    <form method="POST">
-        <div class="mb-3">
-            <label for="username" class="form-label">Kullanıcı Adı</label>
-            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+
+    <!-- Flash mesajlarını gösterme -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {% for category, message in messages %}
+                    <strong>{{ message }}</strong>
+                {% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Kullanıcı Bilgileri Güncelleme Formu -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Bilgilerinizi Güncelleyin</h5>
         </div>
-        <div class="mb-3">
-            <label for="email" class="form-label">E-posta</label>
-            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Kullanıcı Adı</label>
+                    <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">E-posta</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Yeni Şifre (isteğe bağlı)</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                    <small class="form-text text-muted">Yeni şifre girmek istemiyorsanız boş bırakabilirsiniz.</small>
+                </div>
+                <button type="submit" class="btn btn-success">Güncelle</button>
+            </form>
         </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Yeni Şifre (isteğe bağlı)</label>
-            <input type="password" class="form-control" id="password" name="password">
-        </div>
-        <button type="submit" class="btn btn-primary">Güncelle</button>
-    </form>
+    </div>
+
     <hr>
-    <form method="POST" action="{{ url_for('user.delete') }}">
-        <div class="mb-3">
-            <label for="password" class="form-label">Hesabınızı silmek için şifrenizi girin</label>
-            <input type="password" class="form-control" id="password" name="password" required>
+
+    <!-- Hesap Silme Formu -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">Hesabınızı Silin</h5>
         </div>
-        <button type="submit" class="btn btn-danger">Hesabımı Sil</button>
-    </form>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('user.delete') }}">
+                <div class="mb-3">
+                    <label for="password" class="form-label">Hesabınızı silmek için şifrenizi girin</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    <small class="form-text text-muted">Hesabınızı silmek kalıcıdır ve geri alınamaz.</small>
+                </div>
+                <button type="submit" class="btn btn-danger">Hesabımı Sil</button>
+            </form>
+        </div>
+    </div>
 </div>
+
 {% endblock %}

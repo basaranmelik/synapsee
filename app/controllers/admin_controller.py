@@ -1,11 +1,14 @@
+import base64
 import hashlib
 from flask import flash, render_template, redirect, request, session, url_for
+import graphviz
 from app.models import User
 from app.models.mindmaps import MindMap
-from app.models.session import Session
+from app.models.sessions import Session
 from app import db
 from werkzeug.security import generate_password_hash
 from app import db
+from app.models.styles import Style
 from app.models.users import User
 from app.models.admin import Admin
 from functools import wraps
@@ -37,11 +40,19 @@ def _admin_dashboard():
     return render_template('admin/admin_dashboard.html')
 
 def _users_list():
-    # Veritabanından tüm kullanıcıları çekiyoruz
-    users = User.query.all()
+    # Arama sorgusunu alıyoruz (GET parametresi)
+    search_query = request.args.get('search', '').strip()
+    
+    if search_query:
+        # Kullanıcı adı arama sorgusuna göre filtreleme
+        users = User.query.filter(User.username.ilike(f"%{search_query}%")).all()
+    else:
+        # Arama yapılmadıysa tüm kullanıcıları getir
+        users = User.query.all()
     
     # Kullanıcıları listeleyen admin sayfasına yönlendiriyoruz
-    return render_template('admin/admin_users.html', users=users)
+    return render_template('admin/admin_users.html', users=users, search_query=search_query)
+
 
 def admin_logout():
     if 'admin_id' in session:  # Eğer admin oturum açmışsa
@@ -128,6 +139,8 @@ def _user_add():
 
     return render_template('admin/admin_user_add.html')
 
+from flask import request
+
 def _view_mindmaps():
     # Get all users
     users = User.query.all()
@@ -135,12 +148,72 @@ def _view_mindmaps():
     # Initialize a dictionary to store user mind maps
     user_mindmaps = {}
 
+    # Get the search term from the request, if any
+    search_term = request.args.get('search', '').lower()
+
     # Loop through each user and get their mind maps
     for user in users:
+        # Get all mindmaps for this user
         mindmaps = MindMap.query.filter_by(user_id=user.user_id).all()
-        user_mindmaps[user] = mindmaps
 
-    return render_template('admin/admin_mindmaps.html', user_mindmaps=user_mindmaps)
+        # If there's a search term, filter mindmaps based on the title
+        if search_term:
+            mindmaps = [m for m in mindmaps if search_term in m.title.lower()]
+
+        # Only add the user to the dictionary if they have at least one mindmap
+        if mindmaps:
+            user_mindmaps[user] = mindmaps
+
+    return render_template('admin/admin_mindmaps.html', user_mindmaps=user_mindmaps, search_term=search_term)
+
+def generate_mindmap_graph(mindmap, style_id=None):
+    # Stil seçimi: Gönderilen style_id veya varsayılan ilk stil
+    style = Style.query.get(style_id) if style_id else Style.query.first()
+
+    # Eğer stil bulunamazsa varsayılan değerler belirleyelim
+    default_color = "gray"
+    default_shape = "ellipse"
+
+    # Graphviz grafiğini oluştur
+    dot = graphviz.Digraph(comment=mindmap.title, format='png')
+
+    # Mindmap düğümü
+    dot.node(
+        mindmap.title, 
+        mindmap.title, 
+        color=style.color if style else default_color, 
+        shape=style.shape if style else default_shape
+    )
+
+    for goal in mindmap.goals:
+        dot.node(
+            goal.title, 
+            goal.title, 
+            color=style.color if style else default_color, 
+            shape=style.shape if style else default_shape
+        )
+        dot.edge(mindmap.title, goal.title)
+
+        for step in goal.steps:
+            dot.node(
+                step.description, 
+                step.description, 
+                color=style.color if style else default_color, 
+                shape=style.shape if style else default_shape
+            )
+            dot.edge(goal.title, step.description)
+
+    return dot
+
+def render_mindmap_graphviz(mindmap, style_id=None):
+    dot = generate_mindmap_graph(mindmap, style_id)
+
+    # Graphviz grafiğini bellek içinde PNG olarak üret
+    png_data = dot.pipe(format='png')
+
+    # Base64 formatına dönüştür
+    base64_image = base64.b64encode(png_data).decode('utf-8')
+    return f"data:image/png;base64,{base64_image}"
 
 def _view_mindmap(mindmap_id):
     mindmap = MindMap.query.get(mindmap_id)
@@ -148,7 +221,18 @@ def _view_mindmap(mindmap_id):
         flash('Mind map not found!', 'danger')
         return redirect(url_for('admin.view_mindmaps'))
 
-    return render_template('admin/admin_view_mindmap.html', mindmap=mindmap)
+    # Generate the Base64 image URL
+    mindmap_image_url = render_mindmap_graphviz(mindmap)
+
+    return render_template('mindmap/view.html', mindmap=mindmap, mindmap_image_url=mindmap_image_url)
+
+
+def _delete_mindmap(map_id):
+    mindmap = MindMap.query.get_or_404(map_id)
+    db.session.delete(mindmap)
+    db.session.commit()
+    flash('Mindmap başarıyla silindi.', 'success')
+    return redirect(url_for('admin.admin_dashboard'))
 
 
 

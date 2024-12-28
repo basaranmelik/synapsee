@@ -2,6 +2,7 @@
   <a href="{{url_for('admin.admin_dashboard')}}" class="list-group-item list-group-item-action {% if request.path == '/admin/' %}active{% endif %}">Ana Sayfa</a>
   <a href="{{url_for('admin.users_list')}}" class="list-group-item list-group-item-action {% if request.path == '/admin/users' %}active{% endif %}">Kullanıcılar</a>
   <a href="{{url_for('admin.user_add')}}" class="list-group-item list-group-item-action {% if request.path == '/admin/users/add' %}active{% endif %}">Kullanıcı Ekle</a>
+  <a href="{{url_for('admin.admin_logs')}}" class="list-group-item list-group-item-action {% if request.path == '/admin/logs' %}active{% endif %}">Kayıtlar</a>
   <a href="{{url_for('admin.view_mindmaps')}}" class="list-group-item list-group-item-action {% if request.path == '/admin/mindmaps' %}active{% endif %}">Mind Map Yönetimi</a>
-  <a href="/admin/logout" class="list-group-item list-group-item-action {% if request.path == '/admin/logout' %}active{% endif %}">Çıkış</a>
+  <a href="/logout" class="list-group-item list-group-item-action {% if request.path == '/admin/logout' %}active{% endif %}">Çıkış</a>
 </div>

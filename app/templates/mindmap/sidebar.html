@@ -1,0 +1,5 @@
+<div class="list-group">
+  <a href="{{ url_for('mindmap.create') }}" class="list-group-item list-group-item-action {% if request.path == url_for('mindmap.create') %}active{% endif %}">Mindmap Oluştur</a>
+  <a href="{{ url_for('mindmap.list') }}" class="list-group-item list-group-item-action {% if request.path == url_for('mindmap.list') %}active{% endif %}">Mindmap Listele</a>
+  <a href="{{ url_for('mindmap.shared_mindmaps') }}" class="list-group-item list-group-item-action {% if request.path == url_for('mindmap.shared_mindmaps') %}active{% endif %}">Paylaşılan Mindmap'ler</a>
+</div>

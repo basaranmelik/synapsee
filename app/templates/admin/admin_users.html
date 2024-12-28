@@ -12,18 +12,15 @@
     <div class="col-md-9">
       <!-- Kullanıcılar Listesi -->
       <h2>Kullanıcılar</h2>
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <br>
-            <div class="alert-container">
-              {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                  {{ message }}
-                </div>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
+      
+      <!-- Search Form -->
+      <form method="GET" action="{{ url_for('admin.users_list') }}" class="mb-4">
+        <div class="input-group">
+          <input type="text" name="search" class="form-control" placeholder="Kullanıcı adı ara..." value="{{ search_query }}">
+          <button class="btn btn-primary" type="submit">Ara</button>
+        </div>
+      </form>
+      
       <table class="table table-bordered">
         <thead>
           <tr>

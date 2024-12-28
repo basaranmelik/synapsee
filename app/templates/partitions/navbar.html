@@ -14,18 +14,20 @@
         </li>
         {% if 'session_key' in session %}
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('user.profile') }}">Profile</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('user.logout_user') }}">Logout</a>
-          </li>
+          <a class="nav-link" href="{{ url_for('user.profile') }}">
+            {{ session.get('username') }}
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('user.logout_user') }}">Logout</a>
+        </li>
         {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('user.register_user') }}">Register</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('user.login_user') }}">Login</a>
-          </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('user.register_user') }}">Register</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('user.login_user') }}">Login</a>
+        </li>
         {% endif %}
       </ul>
     </div>

@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1>{{ mindmap.title }} - Mindmap Görselleştirmesi</h1>
-    <div>
-        <!-- Graphviz görselleştirmesini buraya yerleştiriyoruz -->
-        <img src="{{ mindmap_image_url }}" alt="Mindmap Görselleştirmesi" width="100%" />
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="text-center">
+        <h1 class="mb-4">{{ mindmap.title }}</h1>
+        <p class="text-muted mb-4">{{ mindmap.description }}</p>  <!-- Mindmap açıklaması eklendi -->
+        <div>
+            <!-- Graphviz görselleştirmesini buraya yerleştiriyoruz -->
+            <img src="{{ mindmap_image_url }}" alt="Mindmap Görselleştirmesi" class="img-fluid" style="max-width: 100%; height: auto;" />
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -1,30 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Admin Dashboard - All User Mind Maps</h1>
-
-    {% if user_mindmaps %}
-        <div class="user-mindmaps">
-            {% for user, mindmaps in user_mindmaps.items() %}
-                <div class="user-mindmap">
-                    <h3>{{ user.username }}</h3>
-                    {% if mindmaps %}
-                        <ul>
-                            {% for mindmap in mindmaps %}
-                                <li>
-                                    <a href="{{ url_for('admin.view_mindmaps', map_id=mindmap.id) }}">
-                                        {{ mindmap.title }} 
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No mind maps available for this user.</p>
-                    {% endif %}
-                </div>
-            {% endfor %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <!-- Sidebar'ı buraya dahil ediyoruz -->
+            {% include 'admin/admin_sidebar.html' %}
         </div>
-    {% else %}
-        <p>No users found.</p>
-    {% endif %}
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <h1 class="mb-4">Admin Dashboard - All User Mind Maps</h1>
+
+            <!-- Arama Çubuğu -->
+            <form class="mb-4" action="{{ url_for('admin.view_mindmaps') }}" method="GET">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Mindmap ara..." name="search" value="{{ request.args.get('search', '') }}">
+                    <button class="btn btn-primary" type="submit">Ara</button>
+                </div>
+            </form>
+
+            {% if user_mindmaps %}
+                <div class="list-group">
+                    {% for user, mindmaps in user_mindmaps.items() %}
+                        <div class="list-group-item">
+                            <h3 class="h5 mb-3">{{ user.username }}</h3>
+                            
+                            {% if mindmaps %}
+                                <ul class="list-group list-group-flush">
+                                    {% for mindmap in mindmaps %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <a href="{{ url_for('admin.view_mindmap', map_id=mindmap.map_id) }}" class="text-decoration-none">
+                                                <h5 class="mb-1">{{ mindmap.title }}</h5>
+                                            </a>
+
+                                            <!-- Silme Butonu -->
+                                            <form action="{{ url_for('admin.delete_mindmap', map_id=mindmap.map_id) }}" method="POST" style="display:inline;">
+                                                <button type="submit" class="btn btn-danger btn-sm">Sil</button>
+                                            </form>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">No mind maps available for this user.</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No users with mind maps found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

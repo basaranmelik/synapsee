@@ -7,8 +7,4 @@ class Style(db.Model):
     color = db.Column(db.String(50))
     shape = db.Column(db.String(50))
 
-    # İlişkiler
-    mindmaps = db.relationship('MindMap', backref='style_of_map', lazy=True)
-
-    def __repr__(self):
-        return f'<Style {self.color}, {self.shape}>'
+    mindmaps = db.relationship('MindMap', backref='style', lazy=True)

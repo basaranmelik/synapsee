@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Activity Logs{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-3">
+      <!-- Sidebar -->
+      {% include 'admin/admin_sidebar.html' %}
+    </div>
+
+    <div class="col-md-9">
+      <h2>Activity Logs</h2>
+      <p>Son işlemleri burada görebilirsiniz.</p>
+
+      <!-- Logs Tablosu -->
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tarih</th>
+            <th>İşlem Türü</th>
+            <th>Tablo Adı</th>
+            <th>Kullanıcı ID</th>
+            <th>Kayıt ID</th>
+            <th>Eski Veri</th>
+            <th>Yeni Veri</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td>{{ log.log_id }}</td>
+            <td>{{ log.action_datetime }}</td>
+            <td>{{ log.action_type }}</td>
+            <td>{{ log.table_name }}</td>
+            <td>{{ log.user_id }}</td>
+            <td>{{ log.record_id }}</td>
+            <td>
+              <button class="btn btn-sm btn-secondary toggle-details" data-target="#old-data-{{ log.log_id }}">
+                Göster
+              </button>
+              <div id="old-data-{{ log.log_id }}" class="json-details d-none">
+                {% if log.old_data %}
+                  {% for key, value in log.old_data.items() %}
+                  <div class="key-value-pair">
+                    <strong>{{ key }}:</strong>
+                    <span>{{ value }}</span>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <p class="text-muted">Eski veri mevcut değil.</p>
+                {% endif %}
+              </div>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-secondary toggle-details" data-target="#new-data-{{ log.log_id }}">
+                Göster
+              </button>
+              <div id="new-data-{{ log.log_id }}" class="json-details d-none">
+                {% if log.new_data %}
+                  {% for key, value in log.new_data.items() %}
+                  <div class="key-value-pair">
+                    <strong>{{ key }}:</strong>
+                    <span>{{ value }}</span>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <p class="text-muted">Yeni veri mevcut değil.</p>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- JavaScript to toggle visibility of JSON data -->
+  <script>
+    document.querySelectorAll('.toggle-details').forEach(function(button) {
+      button.addEventListener('click', function() {
+        var targetId = button.getAttribute('data-target');
+        var targetDiv = document.querySelector(targetId);
+        
+        // Toggle the visibility
+        targetDiv.classList.toggle('d-none');
+        
+        // Update button text
+        if (targetDiv.classList.contains('d-none')) {
+          button.textContent = 'Göster';
+        } else {
+          button.textContent = 'Gizle';
+        }
+      });
+    });
+  </script>
+{% endblock %}

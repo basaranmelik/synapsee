@@ -1,9 +1,16 @@
+from datetime import datetime
 from app import db
 
-class SharedMindMap(db.Model):
+class SharedMindmap(db.Model):
     __tablename__ = 'shared_mindmaps'
 
     shared_id = db.Column(db.Integer, primary_key=True)
     map_id = db.Column(db.Integer, db.ForeignKey('mindmaps.map_id'), nullable=False)
     shared_with_user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    permission_level = db.Column(db.String(50), nullable=False)
+
+    # İlişkiler
+    mindmap = db.relationship('MindMap', backref='shared_mindmaps', lazy=True)
+    user = db.relationship('User', backref='shared_with_user', lazy=True)
+
+    def __repr__(self):
+        return f'<SharedMindmap {self.shared_id}>'
