@@ -17,11 +17,22 @@ def _save():
     title = data.get('title')
     description = data.get('description')
     goals_data = data.get('goals')
+    style_id = data.get('style_id')  # Stil ID'si alınıyor
 
     if not title or not goals_data:
         return jsonify({'error': 'Başlık ve hedefler zorunludur!'}), 400
 
-    mindmap = MindMap(user_id=user_id, title=title, description=description)
+    # Stil ID'si geçerli mi kontrol et
+    style = Style.query.get(style_id) if style_id else None
+    if style_id and not style:
+        return jsonify({'error': 'Geçersiz stil ID\'si!'}), 400
+
+    mindmap = MindMap(
+        user_id=user_id,
+        title=title,
+        description=description,
+        style_id=style_id  # MindMap'e style_id ekleniyor
+    )
     db.session.add(mindmap)
     db.session.commit()
 
@@ -37,6 +48,7 @@ def _save():
     db.session.commit()
     return jsonify({'message': 'Mind Map başarıyla kaydedildi!'}), 200
 
+
 def _list():
     user_id = session.get('user_id')
     if not user_id:
@@ -47,30 +59,31 @@ def _list():
     return render_template('/mindmap/list.html', mindmaps=mindmaps)
 
 def generate_mindmap_graph(mindmap, style_id=None):
-    # Stil seçimi: Gönderilen style_id veya varsayılan ilk stil
     style = Style.query.get(style_id) if style_id else Style.query.first()
 
     # Eğer stil bulunamazsa varsayılan değerler belirleyelim
     default_color = "gray"
     default_shape = "ellipse"
 
-    # Graphviz grafiğini oluştur
+    # Stil bulunamadığında varsayılan değerleri kullan
+    color = style.color if style else default_color
+    shape = style.shape if style else default_shape
+
     dot = graphviz.Digraph(comment=mindmap.title, format='png')
 
-    # Mindmap düğümü
     dot.node(
         mindmap.title, 
         mindmap.title, 
-        color=style.color if style else default_color, 
-        shape=style.shape if style else default_shape
+        color=color, 
+        shape=shape
     )
 
     for goal in mindmap.goals:
         dot.node(
             goal.title, 
             goal.title, 
-            color=style.color if style else default_color, 
-            shape=style.shape if style else default_shape
+            color=color, 
+            shape=shape
         )
         dot.edge(mindmap.title, goal.title)
 
@@ -78,13 +91,12 @@ def generate_mindmap_graph(mindmap, style_id=None):
             dot.node(
                 step.description, 
                 step.description, 
-                color=style.color if style else default_color, 
-                shape=style.shape if style else default_shape
+                color=color, 
+                shape=shape
             )
             dot.edge(goal.title, step.description)
 
     return dot
-
 def render_mindmap_graphviz(mindmap, style_id=None):
     dot = generate_mindmap_graph(mindmap, style_id)
 
@@ -103,7 +115,7 @@ def _view(mindmap_id):
         return redirect(url_for('admin.view_mindmaps'))
 
     # Formdan gelen style_id parametresini al, eğer yoksa None döner
-    style_id = request.form.get('style_id')
+    style_id = mindmap.style_id
 
     # Görselleştirme işlemini yap, stil ID'sini gönder
     mindmap_image_url = render_mindmap_graphviz(mindmap, style_id)
@@ -112,19 +124,6 @@ def _view(mindmap_id):
     styles = Style.query.all()
 
     return render_template('mindmap/view.html', mindmap=mindmap, mindmap_image_url=mindmap_image_url, styles=styles)
-
-def _edit(mindmap_id):
-    mindmap = MindMap.query.get_or_404(mindmap_id)
-
-    if request.method == 'POST':
-        mindmap.title = request.form['title']
-        mindmap.content = request.form['content']
-
-        db.session.commit()
-        flash('Mindmap başarıyla güncellendi!', 'success')
-        return redirect(url_for('mindmap.view', mindmap_id=mindmap.id))
-
-    return render_template('mindmap/edit.html', mindmap=mindmap)
 
 def _delete(mindmap_id):
     mindmap = MindMap.query.get_or_404(mindmap_id)
@@ -151,8 +150,7 @@ def _share(mindmap_id):
     # Paylaşımı veritabanına kaydet (permission_level ile birlikte)
     shared_mindmap = SharedMindmap(
         map_id=mindmap_id, 
-        shared_with_user_id=user.user_id,
-        permission_level=1  # Varsayılan olarak 'okuma' izni (1) veriyoruz
+        shared_with_user_id=user.user_id
     )
     db.session.add(shared_mindmap)
     db.session.commit()

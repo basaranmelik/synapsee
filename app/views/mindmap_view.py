@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template
-from app.controllers.mindmap_controller import _save, _list, _view, _edit, _delete, _share, _shared_mindmaps
+from app.controllers.mindmap_controller import _save, _list, _view, _delete, _share, _shared_mindmaps
 from app.controllers.user_controller import login_required
 from app.models.styles import Style
 
@@ -26,10 +26,6 @@ def list():
 def view(mindmap_id):
     return _view(mindmap_id)
 
-@bp.route('/edit/<int:mindmap_id>', methods=['GET', 'POST'])
-@login_required
-def edit(mindmap_id):
-    return _edit(mindmap_id)
 
 @bp.route('/delete/<int:mindmap_id>', methods=['POST'])
 @login_required

@@ -1,8 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Ana Sayfa{% endblock %}
 
 {% block content %}
-  <h1>Welcome to Synapsee</h1>
-  <p>Organize your roadmaps, set goals, and achieve success step by step!</p>
+  <div class="text-center py-5" style="background: linear-gradient(to right, #6a11cb, #2575fc); color: white;">
+    <h1 class="display-4">Synapsee'ye Hoş Geldiniz</h1>
+    <p class="lead mt-3">Yol haritalarınızı organize edin, hedefler belirleyin ve başarıya adım adım ulaşın!</p>
+  </div>
+
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-4 text-center">
+        <i class="bi bi-map-fill" style="font-size: 2rem; color: #6a11cb;"></i>
+        <h3 class="mt-3">Yol Haritalarınızı Planlayın</h3>
+        <p>Detaylı planlar oluşturun ve ilerlemenizi kolayca takip edin.</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <i class="bi bi-check-circle-fill" style="font-size: 2rem; color: #6a11cb;"></i>
+        <h3 class="mt-3">Net Hedefler Belirleyin</h3>
+        <p>Dönüm noktalarını tanımlayın ve hayallerinize doğru istikrarlı bir şekilde ilerleyin.</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <i class="bi bi-bar-chart-fill" style="font-size: 2rem; color: #6a11cb;"></i>
+        <h3 class="mt-3">Başarılarınızı Takip Edin</h3>
+        <p>Kazandığınız başarıları görselleştirin ve her adımda motive olun.</p>
+      </div>
+    </div>
+  </div>
 {% endblock %}

@@ -1,39 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Create Mind Map{% endblock %}
+{% block title %}Zihin Haritası Oluştur{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Create Your Mind Map</h1>
+    <h1 class="text-center mb-4">Zihin Haritanızı Oluşturun</h1>
     <div class="row">
-        <!-- Sidebar -->
+        <!-- Yan Menü -->
         <div class="col-md-3">
             {% include '/mindmap/sidebar.html' %}
         </div>
 
-        <!-- MindMap Creation Form -->
+        <!-- Zihin Haritası Oluşturma Formu -->
         <div class="col-md-9">
             <form id="mindmap-form" class="p-4 shadow rounded bg-light">
                 <div class="mb-4">
-                    <label for="map-title" class="form-label fw-bold">MindMap Title</label>
-                    <input type="text" class="form-control" id="map-title" placeholder="Enter MindMap title" required>
+                    <label for="map-title" class="form-label fw-bold">Zihin Haritası Başlığı</label>
+                    <input type="text" class="form-control" id="map-title" placeholder="Zihin Haritası başlığını girin" required>
                 </div>
                 <div class="mb-4">
-                    <label for="map-description" class="form-label fw-bold">Description</label>
-                    <textarea class="form-control" id="map-description" rows="4" placeholder="Enter description"></textarea>
+                    <label for="map-description" class="form-label fw-bold">Açıklama</label>
+                    <textarea class="form-control" id="map-description" rows="4" placeholder="Açıklama girin"></textarea>
                 </div>
                 <div class="mb-4">
-                    <label for="map-style" class="form-label fw-bold">Select Style</label>
+                    <label for="map-style" class="form-label fw-bold">Stil Seçin</label>
                     <select class="form-select" id="map-style">
-                        <option value="">Choose a style</option>
+                        <option value="">Bir stil seçin</option>
                         {% for style in styles %}
                         <option value="{{ style.style_id }}">{{ style.color }} - {{ style.shape }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <button type="button" class="btn btn-primary w-100 mb-4" onclick="addGoal()">+ Add Goal</button>
+                <button type="button" class="btn btn-primary w-100 mb-4" onclick="addGoal()">+ Hedef Ekle</button>
                 <div id="goals-container" class="mb-4"></div>
-                <button type="button" class="btn btn-success w-100" onclick="saveMindMap()">Save MindMap</button>
+                <button type="button" class="btn btn-success w-100" onclick="saveMindMap()">Zihin Haritasını Kaydet</button>
             </form>
         </div>
     </div>
@@ -52,15 +52,15 @@
         goalCard.id = `goal-card-${goalId}`;
         goalCard.innerHTML = `
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <span>Goal</span>
-                <button class="btn btn-danger btn-sm" onclick="deleteGoal(${goalId})">Delete Goal</button>
+                <span>Hedef</span>
+                <button class="btn btn-danger btn-sm" onclick="deleteGoal(${goalId})">Hedefi Sil</button>
             </div>
             <div class="card-body bg-light">
                 <div class="mb-3">
-                    <label class="form-label">Goal Title</label>
-                    <input type="text" class="form-control" placeholder="Enter goal title" onchange="updateGoalTitle(${goalId}, this.value)">
+                    <label class="form-label">Hedef Başlığı</label>
+                    <input type="text" class="form-control" placeholder="Hedef başlığını girin" onchange="updateGoalTitle(${goalId}, this.value)">
                 </div>
-                <button type="button" class="btn btn-secondary mb-3" onclick="addStep(${goalId})">+ Add Step</button>
+                <button type="button" class="btn btn-secondary mb-3" onclick="addStep(${goalId})">+ Adım Ekle</button>
                 <ul class="list-group" id="goal-steps-${goalId}"></ul>
             </div>
         `;
@@ -70,15 +70,15 @@
     function addStep(goalId) {
         const goal = goals.find(g => g.id === goalId);
         const stepId = goal.steps.length + 1;
-        goal.steps.push({ id: stepId, description: '', is_completed: false });
+        goal.steps.push({ id: stepId, description: ''});
 
         const stepList = document.getElementById(`goal-steps-${goalId}`);
         const stepItem = document.createElement('li');
         stepItem.className = 'list-group-item d-flex justify-content-between align-items-center bg-light border-secondary';
         stepItem.id = `step-item-${goalId}-${stepId}`;
         stepItem.innerHTML = `
-            <input type="text" class="form-control" placeholder="Enter step description" onchange="updateStepDescription(${goalId}, ${stepId}, this.value)">
-            <button class="btn btn-danger btn-sm ms-2" onclick="deleteStep(${goalId}, ${stepId}, this)">Delete</button>
+            <input type="text" class="form-control" placeholder="Adım açıklamasını girin" onchange="updateStepDescription(${goalId}, ${stepId}, this.value)">
+            <button class="btn btn-danger btn-sm ms-2" onclick="deleteStep(${goalId}, ${stepId}, this)">Sil</button>
         `;
         stepList.appendChild(stepItem);
     }
@@ -111,12 +111,12 @@
         const styleId = document.getElementById('map-style').value;
 
         if (!title) {
-            alert('Mind Map title is required.');
+            alert('Zihin Haritası başlığı gereklidir.');
             return;
         }
 
         if (!styleId) {
-            alert('Please select a style for the Mind Map.');
+            alert('Lütfen bir stil seçin.');
             return;
         }
 
@@ -130,7 +130,7 @@
             }))
         };
 
-        console.log('Saving MindMap:', mindMapData); // Debugging
+        console.log('Zihin Haritası Kaydediliyor:', mindMapData); // Hata ayıklama
         fetch('/mindmap/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -138,16 +138,16 @@
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Error saving Mind Map');
+                throw new Error('Zihin Haritası kaydedilirken bir hata oluştu');
             }
             return response.json();
         })
         .then(data => {
-            alert('Mind Map saved successfully!');
+            alert('Zihin Haritası başarıyla kaydedildi!');
             window.location.href = '/mindmap'; // Başarılıysa yönlendirme
         })
         .catch(error => {
-            alert('Error saving Mind Map.');
+            alert('Zihin Haritası kaydedilirken bir hata oluştu.');
             console.error(error);
         });
     }

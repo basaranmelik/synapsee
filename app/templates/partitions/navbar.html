@@ -7,10 +7,10 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('home.index') }}">Home</a>
+          <a class="nav-link" href="{{ url_for('home.index') }}">Anasayfa</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('mindmap.list') }}">Mindmaps</a>
+          <a class="nav-link" href="{{ url_for('mindmap.list') }}">Zihin Haritaları</a>
         </li>
         {% if 'session_key' in session %}
         <li class="nav-item">
@@ -19,14 +19,14 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('user.logout_user') }}">Logout</a>
+          <a class="nav-link" href="{{ url_for('user.logout_user') }}">Çıkış Yap</a>
         </li>
         {% else %}
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('user.register_user') }}">Register</a>
+          <a class="nav-link" href="{{ url_for('user.register_user') }}">Kayıt Ol</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('user.login_user') }}">Login</a>
+          <a class="nav-link" href="{{ url_for('user.login_user') }}">Giriş Yap</a>
         </li>
         {% endif %}
       </ul>

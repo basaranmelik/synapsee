@@ -81,7 +81,7 @@ def _register_user():
             new_user = User(
                 username=username,
                 email=email,
-                password=generate_password_hash(password)
+                password=password
             )
             db.session.add(new_user)
             db.session.commit()

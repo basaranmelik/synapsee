@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1>Mindmap'leriniz</h1>
+    <h1>Zihin Harita'larınız</h1>
 
     <!-- Flash Mesajları -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -38,14 +38,13 @@
                             </p>
                             <div class="mt-auto">
                                 <a href="{{ url_for('mindmap.view', mindmap_id=mindmap.map_id) }}" class="btn btn-primary btn-sm">Görüntüle</a>
-                                <a href="{{ url_for('mindmap.edit', mindmap_id=mindmap.map_id) }}" class="btn btn-warning btn-sm">Düzenle</a>
                                 <form action="{{ url_for('mindmap.delete', mindmap_id=mindmap.map_id) }}" method="POST" style="display:inline;">
                                     <button type="submit" class="btn btn-danger btn-sm">Sil</button>
                                 </form>
                             </div>
                         </div>
                         <div class="card-footer share-section" id="share-section-{{ mindmap.map_id }}" style="display: none;">
-                            <h6 class="mb-2">Mindmap'i Paylaş</h6>
+                            <h6 class="mb-2">Zihin Haritası'nı Paylaş</h6>
                             <form action="{{ url_for('mindmap.share', mindmap_id=mindmap.map_id) }}" method="POST">
                                 <div class="mb-2">
                                     <input type="text" class="form-control" id="username_{{ mindmap.map_id }}" name="username" placeholder="Kullanıcı adı girin" required>

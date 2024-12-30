@@ -3,45 +3,44 @@
 {% block title %}Yeni Kullanıcı Ekle{% endblock %}
 
 {% block content %}
-
-<div class="container login-container">
-    <div class="row justify-content-center">
+<div class="container-fluid">
     <div class="row">
-    <div class="col-md-3">
-      <!-- Sidebar'ı buraya dahil ediyoruz -->
-      {% include 'admin/admin_sidebar.html' %}
-    </div>
-        <div class="col-md-4">
-        
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            {% include 'admin/admin_sidebar.html' %}
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
             <div class="card">
-                <div class="card-header text-center text-light bg-dark">
-                    <h4>Synapsee - Yeni Kullanıcı Ekle</h4>
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>Yeni Kullanıcı Ekle</h4>
                 </div>
-                <div class="card-body bg-dark text-light">
+                <div class="card-body">
                     <form method="POST" action="{{ url_for('admin.user_add') }}">
                         <!-- Kullanıcı Adı -->
                         <div class="mb-3">
                             <label for="username" class="form-label">Kullanıcı Adı</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Kullanıcı adı giriniz" required>
                         </div>
 
                         <!-- E-posta -->
                         <div class="mb-3">
                             <label for="email" class="form-label">E-posta</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="E-posta adresi giriniz" required>
                         </div>
 
                         <!-- Şifre -->
                         <div class="mb-3">
                             <label for="password" class="form-label">Şifre</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Şifre giriniz" required>
                         </div>
 
                         <!-- Kayıt Butonu -->
-                        <button type="submit" class="btn btn-success text-light w-100">Kullanıcı Ekle</button>
+                        <button type="submit" class="btn btn-success w-100">Kullanıcı Ekle</button>
                     </form>
 
-                    <!-- Hata Mesajı -->
+                    <!-- Hata Mesajları -->
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                         <br>
@@ -55,8 +54,8 @@
                         {% endif %}
                     {% endwith %}
                 </div>
-                <div class="card-footer bg-dark text-center">
-                    <a class="text-light" href="{{ url_for('admin.admin_dashboard') }}" style="text-decoration: none">Geri</a>
+                <div class="card-footer text-center">
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-secondary">Geri Dön</a>
                 </div>
             </div>
         </div>

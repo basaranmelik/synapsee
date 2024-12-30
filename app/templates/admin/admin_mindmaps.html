@@ -3,20 +3,20 @@
 {% block content %}
 <div class="container-fluid mt-4">
     <div class="row">
-        <!-- Sidebar -->
+        <!-- Yan Menü -->
         <div class="col-md-3">
-            <!-- Sidebar'ı buraya dahil ediyoruz -->
+            <!-- Yan menüyü buraya dahil ediyoruz -->
             {% include 'admin/admin_sidebar.html' %}
         </div>
 
-        <!-- Main Content -->
+        <!-- Ana İçerik -->
         <div class="col-md-9">
-            <h1 class="mb-4">Admin Dashboard - All User Mind Maps</h1>
+            <h1 class="mb-4">Admin Kontrol Paneli - Tüm Kullanıcılara Ait Zihin Haritaları</h1>
 
             <!-- Arama Çubuğu -->
             <form class="mb-4" action="{{ url_for('admin.view_mindmaps') }}" method="GET">
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Mindmap ara..." name="search" value="{{ request.args.get('search', '') }}">
+                    <input type="text" class="form-control" placeholder="Zihin haritası ara..." name="search" value="{{ request.args.get('search', '') }}">
                     <button class="btn btn-primary" type="submit">Ara</button>
                 </div>
             </form>
@@ -43,13 +43,13 @@
                                     {% endfor %}
                                 </ul>
                             {% else %}
-                                <p class="text-muted">No mind maps available for this user.</p>
+                                <p class="text-muted">Bu kullanıcı için zihin haritası bulunamadı.</p>
                             {% endif %}
                         </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <p class="text-muted">No users with mind maps found.</p>
+                <p class="text-muted">Zihin haritası olan kullanıcı bulunamadı.</p>
             {% endif %}
         </div>
     </div>
