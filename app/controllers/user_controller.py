@@ -2,7 +2,7 @@
 from functools import wraps
 from flask import render_template, request, redirect, flash, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import User, Admin, Session
+from app.models import User, Admin, Session, MindMap
 from app import db
 from sqlalchemy.exc import IntegrityError
 import uuid
@@ -155,19 +155,37 @@ def _delete():
         flash('Giriş yapmanız gerekiyor!', 'danger')
         return redirect(url_for('user.login_user'))
 
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)
+
     if request.method == 'POST':
         password = request.form.get('password')
 
-        # Şifreyi doğrula
+        # Şifre doğrulama
         if not check_password_hash(user.password, password):
             flash('Şifreniz yanlış!', 'danger')
             return redirect(url_for('user.profile'))
 
+        # Oturumdan kullanıcıyı çıkar
+        session.pop('user_id', None)
+        session.clear()
+
+        # Veritabanından kullanıcının session bilgilerini sil
+        sessions = Session.query.filter_by(user_id=user_id).all()
+        for s in sessions:
+            db.session.delete(s)
+
+        # Kullanıcıya ait mindmap'leri sil
+        mindmaps = MindMap.query.filter_by(user_id=user_id).all()
+        for mindmap in mindmaps:
+            db.session.delete(mindmap)
+
+        db.session.commit()  # Session ve mindmap'lerin silinmesini kaydet
+
         # Kullanıcıyı sil
         db.session.delete(user)
         db.session.commit()
-        
-        flash('Hesabınız başarıyla silindi!', 'success')
-        session.pop('user_id', None)  # Oturumdan kullanıcıyı çıkar
-        return redirect(url_for('user.login_user'))  # Login sayfasına yönlendir
+
+        flash('Hesabınız ve oturum bilgileriniz başarıyla silindi!', 'success')
+        return redirect(url_for('user.login_user'))
+
+    return render_template('user/delete_account.html', user=user)

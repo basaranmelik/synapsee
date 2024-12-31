@@ -6,7 +6,6 @@ from sqlalchemy.exc import IntegrityError
 from app.models import User, MindMap, Style, Session, Admin, SharedMindmap
 from app import db
 from werkzeug.security import generate_password_hash
-from app import db
 from functools import wraps
 
 # Admin gerektiren işlemler için dekoratör
@@ -241,7 +240,6 @@ def _view_mindmap(mindmap_id):
 
 # Mindmap silme fonksiyonu
 def _delete_mindmap(mindmap_id):
-    # Önce shared_mindmaps tablosundaki ilişkili kayıtları sil
     SharedMindmap.query.filter_by(map_id=mindmap_id).delete()
 
     # Ardından mindmaps tablosundaki mindmap kaydını sil
